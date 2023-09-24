@@ -1,43 +1,63 @@
-
 # data filename
-data=test.dat
+data=caida.dat
 
 # remove the file extension from ${data}
-data=`echo ${data} | cut -d'.' -f1` #
+data=$(echo ${data} | cut -d'.' -f1)
 datafile="${data}.dat"
 epsfile="${data}.eps"
 echo "datafile:" ${datafile}
 echo "epsfile:" ${epsfile}
 
 # fontsize of fig
-fontsize=35
+fontsize=25
 
-# number of x axes label type
-alg_c=4
+# =====================
+# 一个x标签对应多少个colum
+alg_c=4.2
+
+# x标签的中心位置偏移
+x_label_center_offset=1
+
+# 每个x标签与x标签之间的空白间隙
+gap_width=1.15
+
+# x标签的个数
+number_of_x_label_type=8
+
+# 有效内容距离边框上下左右的边距（不是画幅的长度）
+top_margin=1.0
+bottom_margin=2.8
+left_margin=7.5
+right_margin=2.0
+
+# y轴的最小最大值
+y_min=100
+y_max=36000000
+
+# =====================
 
 # gunplot command
 cmd="
 set term postscript enhanced eps ${fontsize}
 set output \"${epsfile}\"
 
-set tmargin 1.0
-set bmargin 2.8
-set lmargin 7.5
-set rmargin 1
+set tmargin ${top_margin}
+set bmargin ${bottom_margin}
+set lmargin ${left_margin}
+set rmargin ${right_margin}
 
-set xrange [ -1: ${alg_c}*4-1]
+set xrange [ -1: ${alg_c}*${number_of_x_label_type}-1]
 
 set xtics font \"Helvetica, ${fontsize}\"
-set xtics ( \"5\" +1, \"10\" ${alg_c}+1, \"15\" 2*${alg_c}+1, \"20\" 3*${alg_c}+1 ) 
-set xlabel \"Query Size (Number of Edges)\" offset 0, 0.4 font \"Helvetica, ${fontsize}\"
+set xtics ( \"q_{5s}\" 0*${alg_c}+${x_label_center_offset}, \"q_{10s}\" 1*${alg_c}+${x_label_center_offset}, \"q_{15s}\" 2*${alg_c}+${x_label_center_offset}, \"q_{20s}\" 3*${alg_c}+${x_label_center_offset}, \"q_{5d}\" 4*${alg_c}+${x_label_center_offset}, \"q_{10d}\" 5*${alg_c}+${x_label_center_offset}, \"q_{15d}\" 6*${alg_c}+${x_label_center_offset}, \"q_{20d}\" 7*${alg_c}+${x_label_center_offset} ) rotate by -17
+set xlabel offset 0, 0 font \"Helvetica, ${fontsize}\"
 
 
-set yrange [100: 36000000]
+set yrange [${y_min}: ${y_max}]
 set logscale y
 set ytics ( \"10^2\" 100, \"10^3\" 1000, \"10^4\" 10000, \"10^5\" 100000, \"INF\" 3600000 )
 set ylabel \"Running Time (ms)\" offset 0.5 font \"Helvetica, ${fontsize}\"
 
-set key left top
 
 set boxwidth 1
 
@@ -46,14 +66,20 @@ set multiplot
 set origin 0, 0
 set size 1, 1
 
-plot '$datafile' using ((\$1)-1)*${alg_c}+0:(\$2)+(\$3) title \"tu\" with boxes fill pattern 1 lt 1 lw 2,\
-'$datafile' using ((\$1)-1)*${alg_c}+1:(\$4)+(\$5) title \"tiu\" with boxes fill pattern 2 lt 1 lw 2,\
-'$datafile' using ((\$1)-1)*${alg_c}+2:(\$6)+(\$7) title \"ru\" with boxes fill pattern 3 lt 1 lw 2
+set key left top
 
 
-replot '$datafile' using ((\$1)-1)*${alg_c}+0:(\$2) title \"ts\" with boxes fill pattern 4 lt 1 lw 2,\
-'$datafile' using ((\$1)-1)*${alg_c}+1:(\$4) title \"tis\" with boxes fill pattern 5 lt 1 lw 2,\
-'$datafile' using ((\$1)-1)*${alg_c}+2:(\$6) title \"rs\" with boxes fill pattern 6 lt 1 lw 2
+plot '$datafile' using ((\$1)-1)*${alg_c}+0*${gap_width}:(\$3) title \"TC-Match\" with boxes fill pattern 1 lt 1 lw 2,\
+'$datafile' using ((\$1)-1)*${alg_c}+1*${gap_width}:(\$5) title \"Timing\" with boxes fill pattern 2 lt 1 lw 2,\
+'$datafile' using ((\$1)-1)*${alg_c}+2*${gap_width}:(\$7) title \"RapidFlow\" with boxes fill pattern 4 lt 1 lw 2
+
+
+set key off
+
+replot '$datafile' using ((\$1)-1)*${alg_c}+0*${gap_width}:(\$2) title \"TC-Match\" with boxes fill pattern 3 lt 1 lw 2,\
+'$datafile' using ((\$1)-1)*${alg_c}+1*${gap_width}:(\$4) title \"Timing\" with boxes fill pattern 3 lt 1 lw 2,\
+'$datafile' using ((\$1)-1)*${alg_c}+2*${gap_width}:(\$6) title \"RapidFlow\" with boxes fill pattern 3 lt 1 lw 2
+
 
 unset multiplot
 # =====end multiplot=======
