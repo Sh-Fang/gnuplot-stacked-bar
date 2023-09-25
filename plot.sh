@@ -1,5 +1,5 @@
 # data filename
-data=caida.dat
+data=lsbench.dat
 
 # remove the file extension from ${data}
 data=$(echo ${data} | cut -d'.' -f1)
@@ -13,7 +13,7 @@ fontsize=25
 
 # =====================
 # 一个x标签对应多少个colum
-alg_c=4.2
+alg_c=5.3
 
 # x标签的中心位置偏移
 x_label_center_offset=1
@@ -33,6 +33,12 @@ right_margin=2.0
 # y轴的最小最大值
 y_min=100
 y_max=36000000
+
+# 填充图案
+tcm_pattern=6
+timing_pattern=2
+rf_pattern=4
+calig_pattern=1
 
 # =====================
 
@@ -55,7 +61,7 @@ set xlabel offset 0, 0 font \"Helvetica, ${fontsize}\"
 
 set yrange [${y_min}: ${y_max}]
 set logscale y
-set ytics ( \"10^2\" 100, \"10^3\" 1000, \"10^4\" 10000, \"10^5\" 100000, \"INF\" 3600000 )
+set ytics ( \"10^2\" 100, \"10^3\" 1000, \"10^4\" 10000, \"10^5\" 100000, \"10^6\" 1000000, \"INF\" 3600000 )
 set ylabel \"Running Time (ms)\" offset 0.5 font \"Helvetica, ${fontsize}\"
 
 
@@ -66,19 +72,24 @@ set multiplot
 set origin 0, 0
 set size 1, 1
 
-set key left top
+set key top horizontal center
+
+plot '$datafile' using ((\$1)-1)*${alg_c}+0*${gap_width}:(\$2) title \"TC-Match\" with boxes fill pattern ${tcm_pattern} lt 1 lw 2,\
+'$datafile' using ((\$1)-1)*${alg_c}+1*${gap_width}:(\$3) title \"Timing\" with boxes fill pattern ${timing_pattern} lt 1 lw 2,\
+'$datafile' using ((\$1)-1)*${alg_c}+2*${gap_width}:(\$4) title \"RapidFlow\" with boxes fill pattern ${rf_pattern} lt 1 lw 2,\
+'$datafile' using ((\$1)-1)*${alg_c}+3*${gap_width}:(\$5) title \"CaLiG\" with boxes fill pattern ${calig_pattern} lt 1 lw 2
 
 
-plot '$datafile' using ((\$1)-1)*${alg_c}+0*${gap_width}:(\$3) title \"TC-Match\" with boxes fill pattern 1 lt 1 lw 2,\
-'$datafile' using ((\$1)-1)*${alg_c}+1*${gap_width}:(\$5) title \"Timing\" with boxes fill pattern 2 lt 1 lw 2,\
-'$datafile' using ((\$1)-1)*${alg_c}+2*${gap_width}:(\$7) title \"RapidFlow\" with boxes fill pattern 4 lt 1 lw 2
+# plot '$datafile' using ((\$1)-1)*${alg_c}+0*${gap_width}:(\$3) title \"TC-Match\" with boxes fill pattern 6 lt 1 lw 2,\
+# '$datafile' using ((\$1)-1)*${alg_c}+1*${gap_width}:(\$5) title \"Timing\" with boxes fill pattern 2 lt 1 lw 2,\
+# '$datafile' using ((\$1)-1)*${alg_c}+2*${gap_width}:(\$7) title \"RapidFlow\" with boxes fill pattern 4 lt 1 lw 2
 
 
-set key off
+# set key off
 
-replot '$datafile' using ((\$1)-1)*${alg_c}+0*${gap_width}:(\$2) title \"TC-Match\" with boxes fill pattern 3 lt 1 lw 2,\
-'$datafile' using ((\$1)-1)*${alg_c}+1*${gap_width}:(\$4) title \"Timing\" with boxes fill pattern 3 lt 1 lw 2,\
-'$datafile' using ((\$1)-1)*${alg_c}+2*${gap_width}:(\$6) title \"RapidFlow\" with boxes fill pattern 3 lt 1 lw 2
+# replot '$datafile' using ((\$1)-1)*${alg_c}+0*${gap_width}:(\$2) title \"TC-Match\" with boxes fill pattern 3 lt 1 lw 2,\
+# '$datafile' using ((\$1)-1)*${alg_c}+1*${gap_width}:(\$4) title \"Timing\" with boxes fill pattern 3 lt 1 lw 2,\
+# '$datafile' using ((\$1)-1)*${alg_c}+2*${gap_width}:(\$6) title \"RapidFlow\" with boxes fill pattern 3 lt 1 lw 2
 
 
 unset multiplot
